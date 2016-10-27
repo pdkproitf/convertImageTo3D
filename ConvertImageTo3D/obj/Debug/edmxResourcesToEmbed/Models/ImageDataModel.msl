@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+  <EntityContainerMapping StorageEntityContainer="Image3DModelStoreContainer" CdmEntityContainer="Image3DEntities">
+    <EntitySetMapping Name="ImageTBs">
+      <EntityTypeMapping TypeName="Image3DModel.ImageTB">
+        <MappingFragment StoreEntitySet="ImageTB">
+          <ScalarProperty Name="id" ColumnName="id" />
+          <ScalarProperty Name="img" ColumnName="img" />
+          <ScalarProperty Name="imgStr" ColumnName="imgStr" />
+          <ScalarProperty Name="imgStr1" ColumnName="imgStr1" />
+          <ScalarProperty Name="imgStr2" ColumnName="imgStr2" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+  </EntityContainerMapping>
+</Mapping>

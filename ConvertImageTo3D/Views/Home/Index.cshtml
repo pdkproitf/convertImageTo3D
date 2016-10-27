@@ -1,0 +1,154 @@
+﻿<style>
+    .ImageDiv {
+        position: relative;
+        width: 128px;
+        height: 128px;
+    }
+
+    .caption {
+        display: none;
+        position: absolute;
+        background: rgba(0, 0, 0, 0.4);
+        width: 128px;
+        height: 128px;
+        line-height: 128px;
+    }
+
+        .caption p {
+            padding: 4px;
+        }
+</style>
+<div class="row">
+
+    <div class="jumbotron">
+        <p class="lead">Using Web API Service in ASP.NET MVC:  Profile Image Change Demo</p>
+    </div>
+    <form role="form">
+        @*Notification Alert Container*@
+        <div id="notification">
+        </div>
+
+        @*Image Container*@
+        <div class="ImageDiv">
+            <div class="caption">
+                <p>
+                    <input type="button" class="btn btn-warning text-center" onclick="showImagePreview();" value="Choose Image" />
+                </p>
+            </div>
+            <img alt="Image" src="~/Image/anonymous.gif" class="img-rounded" width="128" height="128" id="imgSet" />
+            <input id="iImage" type="file" style="height:0; width:0; visibility:hidden" />
+        </div>
+        <div class="form-group">
+            <img alt="Image" src="~/Image/anonymous.gif" class="img-rounded" width="128" height="128" id="imgGet" />
+        </div>
+        <div class="form-group form-inline">
+            <input id="txtId" type="text" class="form-control" placeholder="Enter Id to get or set Image" />
+        </div>
+        <div class="form-group form-inline">
+            <input id="btnGetImage" type="button" width="128" class="btn btn-primary" value="Get Image" onclick="getImage()" />
+            <input id="btnSetImage" type="button" width="128" class="btn btn-primary" value="Set Image" onclick="setImage()" />
+            <input id="btnCreateImage" type="button" width="128" class="btn btn-primary" value="Create Image" onclick="createImage()" />
+        </div>
+    </form>
+
+</div>
+@section scripts{
+    <script>
+        $(document).ready(function () {
+            //Show-hide button choose Image when hover image.
+            $(function () {
+                $('.ImageDiv').hover(function () {
+                    $(this).find('.caption').slideDown(250);
+                },
+                function () {
+                    $(this).find('.caption').slideUp(250);
+                });
+            });
+        });
+        //Image update
+        //Created by pdkpro - 10/2016
+        function getImage() {
+            AjaxRequest("Image3Ds/" + $("#txtId").val(), "GET", {}, showImageFromRequest);
+        }
+        //AJAX Request helper method
+        //Created by pdkpro - 10/2016
+        function AjaxRequest(methodName, methodType, data, callback) {
+            $.ajax({
+                type: methodType,
+                url: "api/" + methodName,
+                data: JSON.stringify(data),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (result, status, xhr) {
+                //When success the callback function is called
+                    if (callback) {
+                        callback(result);
+                    }
+                }
+            });
+        }
+        //Callback when complete download Image
+        //Created by pdkpro - 10/2016
+        function showImageFromRequest(data) {
+            if (data.img !== null) {
+                $("#imgGet").attr("src", "data:image/jpg;base64," + data.img);
+            } else {
+                showAlertInfo("alert-danger", "No  have this Id. Please check again!");
+            }
+        }
+        //Show alert info helper method
+        //Created by pdkpro - 10/2016
+        function showAlertInfo(alertClass, alertMessage) {
+            $('#notification').html("<div class='alert-info'><div  class='alert " + alertClass + " alert-dismissible fade in'><button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>×</span></button><strong>" + alertMessage + "</strong></div></div>");
+            $("#notification").fadeTo(2000, 500).slideUp(500, function () {
+                $('#alert-info').alert('close');
+            });
+        }
+        //Choose image from disk and preview before upload
+        //Created by pdkpro - 10/2016
+        function showImagePreview() {
+            var fileInput = $("#iImage");
+            if (fileInput !== null) {
+                //Open file dialog to choose image
+                fileInput.trigger("click");
+                fileInput.change(function () {
+                    if (this.files && this.files[0]) {
+                        //When choose image complete using FileReader to convert image to Base64 string
+                        var reader = new FileReader();
+                        reader.onload = function (e) {
+                            $('#imgSet').attr('src', e.target.result);
+                        }
+                        reader.readAsDataURL(this.files[0])
+                    }
+                });
+            }
+        }
+        //Upload Image to server
+        //Created by pdkpro - 10/2016
+        function setImage() {
+            var imgObject = {};
+            imgObject.img = $("#imgSet").attr("src").split(",")[1];
+            imgObject.imgStr = $("#imgSet").attr("src").split(",")[1];
+            AjaxRequest("Image3Ds/" + $("#txtId").val(), "PUT",imgObject, setImageCompleted);
+        }
+
+        //Callback when complete upload Image
+        //Created by pdkpro - 10/2016
+        function setImageCompleted(data) {
+            if (data === true) {
+                showAlertInfo("alert-success", "Image is saved successful!");
+            } else {
+                showAlertInfo("alert-danger", "Image is saved Fails!");
+            }
+        }
+
+        //Upload Image to server with new DB
+        //Created by pdkpro - 10/2016
+        function createImage() {
+            var imgObject = {};
+            imgObject.img = $("#imgSet").attr("src").split(",")[1];
+            imgObject.imgStr = $("#imgSet").attr("src").split(",")[1];
+            AjaxRequest("Image3Ds/" , "POST", imgObject, setImageCompleted);
+        }
+    </script>
+}
